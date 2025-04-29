@@ -44,7 +44,7 @@ export const productApi = {
 
   // 更新产品
   updateProduct: (productId: string, data: UpdateAIProductRequest) => {
-    return axios.put(`${BASE_URL}/ai_products/${productId}`, data)
+    return axios.patch(`${BASE_URL}/ai_products/${productId}`, data)
   },
 
   // 获取所有产品

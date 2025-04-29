@@ -237,7 +237,6 @@ const fetchHistory = async () => {
       throw new Error(response.data.message || '获取历史记录失败')
     }
   } catch (error: any) {
-    console.error('获取历史记录失败:', error)
     alert(error.response?.data?.message || '获取历史记录失败，请稍后重试')
   } finally {
     loadingHistory.value = false
@@ -299,8 +298,12 @@ const startCheck = async () => {
       ai_product_id: currentProduct.ai_product_id,
       input: inputText.value
     })
-    
+
     if (response.data.code === 200) {
+      if (!response.data.data || !response.data.data.result) {
+        throw new Error('响应数据格式错误')
+      }
+      
       checkResult.value = response.data.data.result
       
       // 更新用户信息中的daily_remaining
@@ -326,12 +329,16 @@ const startCheck = async () => {
       throw new Error(response.data.message || '检测失败')
     }
   } catch (error: any) {
-    console.error('检测失败:', error)
     if (error.message === '用户信息不完整，请重新登录' || 
         error.message === '您暂无使用此功能的权限' ||
-        error.message === '产品配置错误') {
+        error.message === '产品配置错误' ||
+        error.message === '响应数据格式错误') {
       alert(error.message)
-      router.push('/user')
+      if (error.message !== '响应数据格式错误') {
+        router.push('/user')
+      }
+    } else if (error.message.includes('timeout')) {
+      alert('检测请求超时，请稍后重试')
     } else {
       alert(error.response?.data?.message || '检测失败，请稍后重试')
     }

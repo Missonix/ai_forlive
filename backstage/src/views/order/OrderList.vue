@@ -267,7 +267,7 @@ import axios from 'axios'
 import type { UploadRequestOptions } from 'element-plus'
 import type { AxiosProgressEvent } from 'axios'
 
-const BASE_URL = 'http://10.7.21.239:4455'
+const BASE_URL = '/api'
 
 // 数据
 const orderList = ref<Order[]>([])

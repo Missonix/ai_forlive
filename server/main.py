@@ -66,17 +66,25 @@ async def shutdown(request: Request) -> Response:
             description="Failed to shutdown"
         )
 
-
-if __name__ == "__main__":
+async def main():
     try:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        # 启动调度器
+        await start_scheduler()
         
         # 启动应用
         app.start(port=8080, host="0.0.0.0")
+    except Exception as e:
+        logger.error(f"Failed to start application: {str(e)}")
+        raise
 
-        # 在应用启动时启动调度器
-        asyncio.create_task(start_scheduler())
+if __name__ == "__main__":
+    try:
+        # 创建并设置事件循环
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        # 运行主函数
+        loop.run_until_complete(main())
     except Exception as e:
         logger.error(f"Failed to start application: {str(e)}")
         raise

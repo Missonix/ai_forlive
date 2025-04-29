@@ -61,10 +61,7 @@ const handleLogin = async () => {
     if (valid) {
       try {
         loading.value = true
-        const response = await axios.post(
-          'http://10.7.21.239:4455/api/admins/login',
-          loginForm.value,
-        )
+        const response = await axios.post('/api/admins/login', loginForm.value)
         if (response.data.code === 200) {
           // 保存token和用户信息
           localStorage.setItem('access_token', response.data.data.access_token)

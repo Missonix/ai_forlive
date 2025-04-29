@@ -13,26 +13,22 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3579,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_BASE_URL || 'http://localhost:8080',
+        target: 'http://127.0.0.1:8080',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
-      }
-    }
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
+
+  assetsInclude: ['**/*.png', '**/*.jpg', '**/*.svg'],
   build: {
-    // 生产环境构建配置
-    outDir: 'dist',
     assetsDir: 'assets',
-    // 生产环境移除 console
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
-      }
-    }
-  }
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name].[hash][extname]',
+      },
+    },
+  },
 })

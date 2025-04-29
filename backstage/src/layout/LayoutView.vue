@@ -79,7 +79,7 @@ const handleLogout = async () => {
 
     // 调用登出接口
     const token = localStorage.getItem('access_token')
-    await axios.post('http://10.7.21.239:4455/api/admins/logout', null, {
+    await axios.post('/api/admins/logout', null, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -13,7 +13,7 @@ class Courses(Base):
     __tablename__ = 'courses'
     
     course_id = Column(String(50), primary_key=True, index=True)
-    course_name = Column(VARCHAR(20), unique=True, index=True, nullable=False)
+    course_name = Column(VARCHAR(50), unique=True, index=True, nullable=False)
     is_deleted = Column(Boolean, default=False) # 是否是删除状态
     created_at = Column(DateTime, default=datetime.utcnow) # 创建时间
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow) # 更新时间
@@ -44,7 +44,7 @@ class Ai_products(Base):
     __tablename__ = 'ai_products'
 
     ai_product_id = Column(String(50), primary_key=True, index=True) # ai产品id，唯一 主键
-    ai_product_name = Column(VARCHAR(20), nullable=False) # ai产品名称
+    ai_product_name = Column(VARCHAR(50), nullable=False) # ai产品名称
     created_at = Column(DateTime, default=datetime.utcnow) # 创建时间
     is_deleted = Column(Boolean, default=False) # 是否删除(逻辑删除)
 
@@ -75,7 +75,7 @@ class Entitlement_rules(Base):
     course_id = Column(String(50), nullable=False) # 关联课程ID
     course_name = Column(VARCHAR(50), nullable=False) # 关联课程名称
     ai_product_id = Column(String(50), nullable=False) # 关联AI产品ID
-    product_name = Column(VARCHAR(20), nullable=False) # 权益产品名称
+    product_name = Column(VARCHAR(50), nullable=False) # 权益产品名称
     daily_limit = Column(Integer, nullable=False, default=3) # 每日使用上限
     validity_days = Column(Integer, nullable=False, default=30) # 权益有效期（天）外键
     created_at = Column(DateTime, default=datetime.utcnow) # 创建时间
@@ -158,8 +158,8 @@ class User_entitlements(Base):
     phone = Column(VARCHAR(20), nullable=False) # 用户手机号
     order_id = Column(String(50), nullable=True) # 订单ID
     rule_id = Column(String(50), nullable=False) # 权益规则ID
-    course_name = Column(VARCHAR(20), nullable=False) # 关联课程名称
-    product_name = Column(VARCHAR(20), nullable=False) # 权益产品名称
+    course_name = Column(VARCHAR(50), nullable=False) # 关联课程名称
+    product_name = Column(VARCHAR(50), nullable=False) # 权益产品名称
     ai_product_id = Column(VARCHAR(50), nullable=True)  # 新增字段
     start_date = Column(DateTime, nullable=False) # 权益生效日期
     end_date = Column(DateTime, nullable=False) # 权益失效日期

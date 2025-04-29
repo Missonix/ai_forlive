@@ -146,39 +146,37 @@ const navigateTo = (path: string) => {
 const fetchAllData = async () => {
   try {
     // 获取用户总数
-    const userResponse = await axios.get('http://10.7.21.239:4455/api/users/count')
+    const userResponse = await axios.get('/api/users/count')
     if (userResponse.data.code === 200) {
       userCount.value = userResponse.data.data.total
     }
 
     // 获取课程总数
-    const courseResponse = await axios.get('http://10.7.21.239:4455/courses/count')
+    const courseResponse = await axios.get('/api/courses/count')
     if (courseResponse.data.code === 200) {
       courseCount.value = courseResponse.data.data.total
     }
 
     // 获取产品总数
-    const productResponse = await axios.get('http://10.7.21.239:4455/ai_products/count')
+    const productResponse = await axios.get('/api/ai_products/count')
     if (productResponse.data.code === 200) {
       productCount.value = productResponse.data.data.total
     }
 
     // 获取订单总数
-    const orderResponse = await axios.get('http://10.7.21.239:4455/orders/count')
+    const orderResponse = await axios.get('/api/orders/count')
     if (orderResponse.data.code === 200) {
       orderCount.value = orderResponse.data.data.total
     }
 
     // 获取权益规则总数
-    const entitlementResponse = await axios.get('http://10.7.21.239:4455/entitlement_rules/count')
+    const entitlementResponse = await axios.get('/api/entitlement_rules/count')
     if (entitlementResponse.data.code === 200) {
       entitlementCount.value = entitlementResponse.data.data.total
     }
 
     // 获取用户权益总数
-    const userEntitlementResponse = await axios.get(
-      'http://10.7.21.239:4455/user_entitlements/count',
-    )
+    const userEntitlementResponse = await axios.get('/api/user_entitlements/count')
     if (userEntitlementResponse.data.code === 200) {
       userEntitlementCount.value = userEntitlementResponse.data.data.total
     }

@@ -49,7 +49,7 @@ export const courseApi = {
 
   // 更新课程
   updateCourse: (courseId: string, data: { course_name: string }) => {
-    return axios.put(`${BASE_URL}/courses/${courseId}`, data)
+    return axios.patch(`${BASE_URL}/courses/${courseId}`, data)
   },
 
   // 获取所有课程

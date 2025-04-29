@@ -19,7 +19,7 @@ load_dotenv(os.path.join(BASE_DIR, "robyn.env"))
 MYSQL_HOST = os.getenv('MYSQL_HOST', 'localhost')
 MYSQL_PORT = int(os.getenv('MYSQL_PORT', 3306))
 MYSQL_USER = os.getenv('MYSQL_USER', 'root')
-MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD', 'root')
+MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD', '!Jgpy88888888')
 MYSQL_DATABASE = os.getenv('MYSQL_DATABASE', 'ai_data')
 
 # 创建异步数据库引擎

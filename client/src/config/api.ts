@@ -2,8 +2,8 @@ import axios from 'axios'
 
 // 创建axios实例
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
-  timeout: 10000,
+  baseURL: '/api', // 使用相对路径，通过vite代理转发
+  timeout: 30000, // 增加超时时间到30秒
   headers: {
     'Content-Type': 'application/json'
   }
@@ -15,6 +15,10 @@ api.interceptors.request.use(
     const token = localStorage.getItem('accessToken')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+    }
+    // 为检测接口设置更长的超时时间
+    if (config.url === '/vio_word/check') {
+      config.timeout = 60000 // 检测接口设置60秒超时
     }
     return config
   },
@@ -29,6 +33,12 @@ api.interceptors.response.use(
     return response
   },
   (error) => {
+    if (error.code === 'ECONNABORTED' && error.message.includes('timeout')) {
+      // 处理超时错误
+      console.error('请求超时，正在重试...')
+      return Promise.reject(new Error('请求超时，请稍后重试'))
+    }
+    
     if (error.response?.status === 401) {
       // 处理未授权的情况
       localStorage.removeItem('userInfo')

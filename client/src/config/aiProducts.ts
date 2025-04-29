@@ -14,21 +14,14 @@ export const aiProducts: AIProduct[] = [
     id: 'live_check',
     name: '直播话术违规词AI检测',
     description: '智能检测直播话术中的违规内容，提供优化建议',
-    ai_product_id: 'AI_afe68e5953d649d2b86b609363e1dbd3',
+    ai_product_id: 'AI_173c4937915142619b5da333996c5f55',
     component: Home
   },
   {
     id: 'test_product1',
-    name: '测试产品1',
-    description: '测试产品1的功能描述',
-    ai_product_id: 'AI_test_product1',
-    component: Home
-  },
-  {
-    id: 'test_product2',
-    name: '测试产品2',
-    description: '测试产品2的功能描述',
-    ai_product_id: 'AI_test_product2',
+    name: '直播话术AI生成',
+    description: '根据商品内容生成话术',
+    ai_product_id: 'test_173c49333996c5f55',
     component: Home
   }
 ] 
