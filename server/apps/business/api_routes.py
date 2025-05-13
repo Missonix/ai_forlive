@@ -50,7 +50,8 @@ from apps.business.api import (
     get_user_entitlement_count,
 
     search_courses_by_name_prefix_api,
-    search_ai_products_by_name_prefix_api
+    search_ai_products_by_name_prefix_api,
+    manual_refresh_daily_remaining_service
 )
 from apps.business.views import upload_orders_excel
 
@@ -118,3 +119,5 @@ def business_api_routes(app):
 
     app.add_route(route_type="POST", endpoint="/courses/search", handler=search_courses_by_name_prefix_api) # 根据课程名称开头搜索课程
     app.add_route(route_type="POST", endpoint="/ai_products/search", handler=search_ai_products_by_name_prefix_api) # 根据AI产品名称开头搜索AI产品
+
+    app.add_route(route_type="PATCH", endpoint="/manual_refresh_daily_remaining", handler=manual_refresh_daily_remaining_service) # 手动刷新所有生效中用户权益的剩余额度

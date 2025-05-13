@@ -23,6 +23,8 @@ from apps.business.utils import (
     generate_entitlement_id
 )
 import asyncio
+from sqlalchemy import select, and_
+from core.database import async_sessionmaker
 
 
 # 设置日志记录器
@@ -1213,11 +1215,13 @@ async def get_orders_by_filter_service(request):
         filters = {}
         
         # 构建过滤条件
+        if "order_id" in request_data:
+            filters["order_id"] = request_data["order_id"]
         if "phone" in request_data:
             filters["phone"] = request_data["phone"]
-        if "course_name" in request_data:
+        if "course_id" in request_data:
             async with AsyncSessionLocal() as db:
-                course = await business_crud.get_course_by_filter(db, {"course_name": request_data["course_name"], "is_deleted": False})
+                course = await business_crud.get_course_by_filter(db, {"course_id": request_data["course_id"], "is_deleted": False})
                 if not course:
                     return ApiResponse.not_found("课程不存在")
                 filters["course_id"] = course.course_id
@@ -1240,16 +1244,51 @@ async def get_orders_by_filter_service(request):
         filters["is_deleted"] = False
             
         async with AsyncSessionLocal() as db:
-            orders = await business_crud.get_orders_by_filters(db, filters)
-            if not orders:
-                return ApiResponse.success(
-                    data=[],
-                    message="未找到符合条件的订单"
+
+            try:
+                page = int(request.query_params.get("page", "1"))
+                page_size = int(request.query_params.get("page_size", "10"))
+            except ValueError:
+                page = 1
+                page_size = 10
+            
+            # 验证分页参数
+            if page < 1:
+                page = 1
+            if page_size < 1 or page_size > 100:
+                page_size = 10
+                
+            # 按创建时间倒序排序
+            order_by = {"created_at": "desc"}
+
+            try:
+                orders, total_count = await business_crud.get_orders_by_filters(
+                    db, 
+                    filters=filters,
+                    order_by=order_by,
+                    page=page,
+                    page_size=page_size
                 )
-            return ApiResponse.success(
-                data=[order.to_dict() for order in orders],
-                message="获取订单成功"
-            )
+                
+                # 计算总页数
+                total_pages = (total_count + page_size - 1) // page_size
+                
+                return ApiResponse.success(
+                    data={
+                        "items": [order.to_dict() for order in orders],
+                        "total": total_count,
+                        "page": page,
+                        "page_size": page_size,
+                        "total_pages": total_pages
+                    },
+                    message="获取订单列表成功"
+                )
+            except Exception as e:
+                logger.error(f"查询订单列表失败: {str(e)}")
+                return ApiResponse.error(
+                    message="获取订单列表失败",
+                    status_code=status_codes.HTTP_500_INTERNAL_SERVER_ERROR
+                )
             
     except Exception as e:
         logger.error(f"查询订单服务异常: {str(e)}")
@@ -1807,44 +1846,54 @@ async def sync_orders_to_entitlements_service(max_retries=3):
 
 async def update_daily_remaining_service():
     """
-    每日更新用户权益剩余额度服务
-    在每日0:00执行，将所有用户权益的daily_remaining更新为对应权益规则的daily_limit
+    更新用户权益每日剩余次数的服务
+    每日0点自动将所有未删除且在有效期内的用户权益的daily_remaining更新为对应权益规则的daily_limit
     """
     try:
-        async with AsyncSessionLocal() as db:
-            # 获取所有未删除的用户权益
-            entitlements = await business_crud.get_user_entitlements_by_filters(db, {"is_deleted": False})
-            
-            if not entitlements:
-                logger.info("没有需要更新的用户权益")
-                return
-            
-            update_count = 0
-            for entitlement in entitlements:
-                try:
-                    # 获取对应的权益规则
-                    rule = await business_crud.get_entitlement_rule(db, entitlement.rule_id)
-                    if not rule:
-                        logger.warning(f"未找到用户权益 {entitlement.entitlement_id} 对应的权益规则")
-                        continue
-                    
-                    # 更新daily_remaining为规则的daily_limit
-                    await business_crud.update_user_entitlement(
-                        db, 
-                        entitlement.entitlement_id, 
-                        {"daily_remaining": rule.daily_limit}
+        from datetime import datetime
+        from sqlalchemy import select, and_
+        from core.database import AsyncSessionLocal
+        from apps.business.models import User_entitlements, Entitlement_rules
+        
+        async with AsyncSessionLocal() as session:
+            # 查询所有未删除且在有效期内的用户权益
+            now = datetime.utcnow()
+            active_entitlements = await session.execute(
+                select(User_entitlements).where(
+                    and_(
+                        User_entitlements.is_deleted == False,
+                        User_entitlements.start_date <= now,
+                        User_entitlements.end_date >= now
                     )
-                    update_count += 1
-                    
-                except Exception as e:
-                    logger.error(f"更新用户权益 {entitlement.entitlement_id} 失败: {str(e)}")
-                    continue
+                )
+            )
+            active_entitlements = active_entitlements.scalars().all()
             
-            logger.info(f"每日额度更新完成，共更新 {update_count} 条记录")
+            # 更新每个用户权益的daily_remaining
+            for entitlement in active_entitlements:
+                # 获取对应的权益规则
+                rule = await session.execute(
+                    select(Entitlement_rules).where(
+                        and_(
+                            Entitlement_rules.rule_id == entitlement.rule_id,
+                            Entitlement_rules.is_deleted == False
+                        )
+                    )
+                )
+                rule = rule.scalar_one_or_none()
+                
+                if rule:
+                    # 更新daily_remaining为daily_limit
+                    entitlement.daily_remaining = rule.daily_limit
             
+            # 提交更改
+            await session.commit()
+            
+            logger.info(f"Successfully updated daily remaining for {len(active_entitlements)} user entitlements")
+            return True
     except Exception as e:
-        logger.error(f"每日更新用户权益剩余额度服务异常: {str(e)}")
-        raise
+        logger.error(f"Error updating daily remaining: {str(e)}")
+        return False
 
 async def generate_user_entitlement_from_order_service(request):
     """
@@ -2801,7 +2850,55 @@ async def generate_product_card_from_ai_product_service(request):
         )
 
 
+async def manual_refresh_daily_remaining_service(request):
+    """
+    手动刷新所有生效中用户权益的剩余额度
+    """
+    try:
+        from datetime import datetime
+        from sqlalchemy import select, and_
+        from core.database import AsyncSessionLocal
+        from apps.business.models import User_entitlements, Entitlement_rules
 
+        async with AsyncSessionLocal() as session:
+            now = datetime.utcnow()
+            # 查询所有未删除且在有效期内的用户权益
+            active_entitlements = await session.execute(
+                select(User_entitlements).where(
+                    and_(
+                        User_entitlements.is_deleted == False,
+                        User_entitlements.start_date <= now,
+                        User_entitlements.end_date >= now
+                    )
+                )
+            )
+            active_entitlements = active_entitlements.scalars().all()
+
+            # 更新每个用户权益的daily_remaining
+            for entitlement in active_entitlements:
+                rule = await session.execute(
+                    select(Entitlement_rules).where(
+                        and_(
+                            Entitlement_rules.rule_id == entitlement.rule_id,
+                            Entitlement_rules.is_deleted == False
+                        )
+                    )
+                )
+                rule = rule.scalar_one_or_none()
+                if rule:
+                    entitlement.daily_remaining = rule.daily_limit
+
+            await session.commit()
+            logger.info(f"手动刷新成功，共刷新 {len(active_entitlements)} 条用户权益")
+            return ApiResponse.success(
+                message=f"手动刷新成功，共刷新 {len(active_entitlements)} 条用户权益"
+            )
+    except Exception as e:
+        logger.error(f"手动刷新用户权益额度异常: {str(e)}")
+        return ApiResponse.error(
+            message="手动刷新失败",
+            status_code=status_codes.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 

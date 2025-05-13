@@ -345,3 +345,11 @@ async def search_ai_products_by_name_prefix_api(request: Request):
     """
     from apps.business.services import search_ai_products_by_name_prefix_service
     return await search_ai_products_by_name_prefix_service(request)
+
+async def manual_refresh_daily_remaining_service(request: Request):
+    """
+    手动刷新所有生效中用户权益的剩余额度
+    """
+    from apps.business.services import manual_refresh_daily_remaining_service
+    return await manual_refresh_daily_remaining_service(request)
+

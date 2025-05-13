@@ -5,6 +5,9 @@
         <div class="card-header">
           <span>用户权益管理</span>
           <el-button type="primary" @click="handleAdd">新增权益</el-button>
+          <el-button type="success" @click="handleRefreshAll" style="margin-left: 10px"
+            >刷新所有权益额度</el-button
+          >
         </div>
       </template>
 
@@ -382,6 +385,25 @@ const handleSubmit = async () => {
       }
     }
   })
+}
+
+// 刷新所有权益额度
+const handleRefreshAll = async () => {
+  try {
+    loading.value = true
+    const res = await userEntitlementApi.refreshAllDailyRemaining()
+    if (res.data.code === 200) {
+      ElMessage.success('刷新成功')
+      await fetchEntitlementList()
+    } else {
+      ElMessage.error(res.data.message || '刷新失败')
+    }
+  } catch (error) {
+    console.error('刷新失败:', error)
+    ElMessage.error('刷新失败')
+  } finally {
+    loading.value = false
+  }
 }
 
 // 初始化

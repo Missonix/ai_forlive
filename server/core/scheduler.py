@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from apps.business.services import update_daily_remaining_service
 
 logger = logging.getLogger(__name__)
@@ -15,7 +15,7 @@ async def run_at_specific_time(target_time: time, coro):
         now = datetime.now().time()
         if now >= target_time:
             # 如果当前时间已经超过目标时间，等待到明天
-            tomorrow = datetime.now().date() + datetime.timedelta(days=1)
+            tomorrow = datetime.now().date() + timedelta(days=1)
             target_datetime = datetime.combine(tomorrow, target_time)
         else:
             # 否则等待到今天的目标时间

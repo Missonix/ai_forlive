@@ -10,7 +10,7 @@ from core.logger import setup_logger
 import asyncio
 from apps.business.api_routes import business_api_routes # 导入业务接口路由
 from core.scheduler import start_scheduler
-
+from apps.search_video.views.view_routes import search_video_view_routes # 导入对标视频搜索与推荐视图路由
 # 设置日志记录器
 logger = setup_logger('main')
 
@@ -35,6 +35,9 @@ users_view_routes(app)
 
 # 注册违规词检测视图路由
 vio_word_view_routes(app)
+
+# 注册对标视频搜索与推荐视图路由
+search_video_view_routes(app)
 
 # 初始化Redis连接的路由
 @app.get("/initialize")

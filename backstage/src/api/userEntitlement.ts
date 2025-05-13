@@ -79,4 +79,9 @@ export const userEntitlementApi = {
   deleteEntitlement(entitlementId: string) {
     return axios.delete(`${BASE_URL}/user_entitlements/${entitlementId}`)
   },
+
+  // 刷新所有权益额度
+  refreshAllDailyRemaining() {
+    return axios.patch(`${BASE_URL}/manual_refresh_daily_remaining`)
+  },
 }

@@ -367,9 +367,13 @@ const fetchOrderList = async () => {
 const handleSearch = async () => {
   try {
     loading.value = true
-    const res = await orderApi.searchOrder(searchForm.value)
-    orderList.value = res.data.data
-    total.value = res.data.data.length
+    // 过滤掉空值字段
+    const params = Object.fromEntries(
+      Object.entries(searchForm.value).filter(([, v]) => v !== '' && v !== undefined && v !== null),
+    )
+    const res = await orderApi.searchOrder(params)
+    orderList.value = res.data.data.items
+    total.value = res.data.data.total
   } catch (error) {
     console.error('搜索订单失败:', error)
     ElMessage.error('搜索订单失败')
