@@ -69,25 +69,23 @@ async def shutdown(request: Request) -> Response:
             description="Failed to shutdown"
         )
 
-async def main():
+# 启动调度器函数
+async def init_scheduler():
     try:
         # 启动调度器
         await start_scheduler()
-        
-        # 启动应用
-        app.start(port=8080, host="0.0.0.0")
+        logger.info("调度器启动成功")
     except Exception as e:
-        logger.error(f"Failed to start application: {str(e)}")
+        logger.error(f"调度器启动失败: {str(e)}")
         raise
 
 if __name__ == "__main__":
-    try:
-        # 创建并设置事件循环
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        
-        # 运行主函数
-        loop.run_until_complete(main())
-    except Exception as e:
-        logger.error(f"Failed to start application: {str(e)}")
-        raise
+    # 创建并设置事件循环
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
+    # 启动调度器
+    loop.run_until_complete(init_scheduler())
+    
+    # 直接启动Robyn实例，让Robyn框架接管应用生命周期
+    app.start(port=8080, host="0.0.0.0")
