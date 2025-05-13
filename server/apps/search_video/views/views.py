@@ -1,6 +1,5 @@
 from robyn import Request, Response
 from core.response import ApiResponse
-from apps.search_video.core import video_search_check
 from core.middleware import error_handler, request_logger, auth_required, admin_required, rate_limit, auth_userinfo
 from core.logger import setup_logger
 import json
@@ -30,9 +29,10 @@ async def search_video(request: Request) -> Response:
             headers={"Content-Type": "application/json"},
             description=json.dumps({"code": 400, "message": "输入的商品名称长度不要超过60哦"})
         )
-    import os
-    category_list = os.getenv("category")
-    country_list = os.getenv("country")
+
+    category_list = ["日用百货", "智能家居", "食品", "服饰鞋靴", "箱包", "玩具", "五金配件", "个护清洁", "美妆"]
+    country_list = ["美国", "印度尼西亚", "马来西亚", "泰国", "越南", "菲律宾", "英国", "新加坡", "墨西哥"]
+
     if category not in category_list:
         return Response(
             status_code=400,
