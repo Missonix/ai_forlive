@@ -38,6 +38,14 @@
             <el-icon><UserFilled /></el-icon>
             <span>用户权益管理</span>
           </el-menu-item>
+          <el-menu-item index="/kalodata">
+            <el-icon><DataAnalysis /></el-icon>
+            <span>Kalodata数据管理</span>
+          </el-menu-item>
+          <el-menu-item index="/category-manage">
+            <el-icon><Files /></el-icon>
+            <span>类目管理</span>
+          </el-menu-item>
         </el-menu>
       </el-aside>
       <el-container>
@@ -62,7 +70,17 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { HomeFilled, User, Reading, Goods, List, Ticket, UserFilled } from '@element-plus/icons-vue'
+import {
+  HomeFilled,
+  User,
+  Reading,
+  Goods,
+  List,
+  Ticket,
+  UserFilled,
+  DataAnalysis,
+  Files,
+} from '@element-plus/icons-vue'
 import axios from 'axios'
 
 const router = useRouter()

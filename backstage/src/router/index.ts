@@ -74,6 +74,22 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true,
         },
       },
+      {
+        path: 'kalodata',
+        name: 'Kalodata',
+        component: () => import('@/views/kalodata/KalodataList.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: 'category-manage',
+        name: 'CategoryManage',
+        component: () => import('@/views/kalodata/CategoryManage.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
     ],
   },
 ]

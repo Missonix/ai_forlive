@@ -1,4 +1,5 @@
 import Home from '@/views/Home.vue'
+import VideoSearch from '@/views/VideoSearch.vue'
 import type { Component } from 'vue'
 
 export interface AIProduct {
@@ -23,5 +24,12 @@ export const aiProducts: AIProduct[] = [
     description: '根据商品内容生成话术',
     ai_product_id: 'test_173c49333996c5f55',
     component: Home
+  },
+  {
+    id: 'video_search_recommendation',
+    name: '对标视频AI搜索与推荐',
+    description: '根据您上传的商品推荐近期爆款视频并生成拍摄建议',
+    ai_product_id: 'AI_a144179113d143ccbdc0c1e714fdd78d',
+    component: VideoSearch
   }
 ] 
